@@ -1,4 +1,4 @@
-﻿function Cipher-File{
+﻿function CSFH-64Encrypt{
 param(
 [Parameter(Mandatory=$true)][string]$Filepath
 )
