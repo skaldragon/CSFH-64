@@ -1,4 +1,4 @@
-﻿function Decipher-File{
+﻿function CSFH-64Decrypt{
 param(
 [Parameter(Mandatory=$true)][string]$Filepath
 )
