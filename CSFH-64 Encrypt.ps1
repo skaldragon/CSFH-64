@@ -1,4 +1,4 @@
-﻿function CSFH-64Encrypt{
+function CSFH-64Encrypt{
 param(
 [Parameter(Mandatory=$true)][string]$Filepath
 )
@@ -623,7 +623,7 @@ $64Hash=$Finalbinaryjoined + $Finalbinaryjoined2 + $Finalbinaryjoined3 + $Finalb
 
 
 $byte=Get-Content -Path $Filepath -Encoding Byte
-$directory=(gci -Path $Filepath | select directory).directory
+$directory=(gci -Path $Filepath | select fullname).fullname
 
 $Filepath2=gci -Path $directory
 $Zip=$Filepath2.fullname
@@ -631,10 +631,13 @@ $ZipE=".zip"
 $Zip=$Zip.Split(".")
 $Dest=$Zip[0],$ZipE -join ""
 
+#Create new folder for zipping
+New-Item -Path C:\Users\$env:username\Desktop -Name ZipfileFolder -ItemType directory
+Move-Item -Path $Filepath -Destination C:\Users\$env:username\Desktop\ZipfileFolder
+$zipfilelocation="C:\Users\$env:username\Desktop\ZipfileFolder"
 
-
-Add-Type -Assembly System.IO.Compression.FileSystem
-[System.IO.Compression.ZipFile]::CreateFromDirectory($directory,$Dest)
+[Reflection.Assembly]::LoadWithPartialName( "System.IO.Compression.FileSystem" )
+[System.IO.Compression.ZipFile]::CreateFromDirectory($zipfilelocation,$Dest)
 [System.Collections.ArrayList]$combinedarray=@()
 $key1=7
 $key2=17
@@ -647,5 +650,4 @@ $combinedarray+=$value
 }
 $combinedarray+="`n$64Hash"
 $combinedarray | Out-File -FilePath $Dest
-Remove-Item -Path $Filepath
 }
