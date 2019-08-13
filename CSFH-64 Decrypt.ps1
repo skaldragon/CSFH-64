@@ -1,4 +1,4 @@
-﻿function CSFH-64Decrypt{
+function CSFH-64Decrypt{
 param(
 [Parameter(Mandatory=$true)][string]$Filepath
 )
@@ -644,13 +644,9 @@ $value2=$value2-$key1
 $combinedarray2+=$value2
 }
 Clear-Content -Path $Filepath
-[IO.File]::WriteAllBytes($Filepath,$combinedarray2)
 
 $endpath=(Read-Host "Where do you want your file to go? Include File and Extension")
-New-Item -Path $endpath -ItemType File
-$content2=Get-Content -Path $Filepath
-Remove-Item -Path $Filepath
-echo "$content2">>$endpath
+[IO.File]::WriteAllBytes("C:\users\$env:username\desktop\$endpath",$combinedarray2)
 }
 else{
 Write-Host "You are not able to decrypt this file" -ForegroundColor Red
