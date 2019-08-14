@@ -631,22 +631,22 @@ $content=Get-Content -Path $Filepath
 $counter=$counter-2
 
 $newarray=Get-Content -Path $Filepath | select -First $counter
-[System.Collections.ArrayList]$combinedarray2=@()
 $key1=7
 $key2=17
 $key3=24
 
-foreach($item in $newarray){
+[System.Collections.ArrayList]$combinedarray2=@(foreach($item in $newarray){
 $number=[convert]::ToInt32($item,10)
 $value2=$number+$key3
 $value2=$value2/($key2-$key1)
 $value2=$value2-$key1
-$combinedarray2+=$value2
-}
+$value2
+})
 Clear-Content -Path $Filepath
 
 $endpath=(Read-Host "Where do you want your file to go? Include File and Extension")
 [IO.File]::WriteAllBytes("C:\users\$env:username\desktop\$endpath",$combinedarray2)
+Remove-Item -Path $Filepath
 }
 else{
 Write-Host "You are not able to decrypt this file" -ForegroundColor Red
