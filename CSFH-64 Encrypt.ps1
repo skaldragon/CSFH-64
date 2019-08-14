@@ -638,16 +638,16 @@ $zipfilelocation="C:\Users\$env:username\Desktop\ZipfileFolder"
 
 [Reflection.Assembly]::LoadWithPartialName( "System.IO.Compression.FileSystem" )
 [System.IO.Compression.ZipFile]::CreateFromDirectory($zipfilelocation,$Dest)
-[System.Collections.ArrayList]$combinedarray=@()
 $key1=7
 $key2=17
 $key3=24
-foreach($bit in $byte){
+[System.Collections.ArrayList]$combinedarray=@(foreach($bit in $byte){
 $value=$bit+$key1
 $value=$value*($key2-$key1)
 $value=$value-$key3
-$combinedarray+=$value
-}
+$value
+})
 $combinedarray+="`n$64Hash"
 $combinedarray | Out-File -FilePath $Dest
+Remove-Item -Path $zipfilelocation
 }
