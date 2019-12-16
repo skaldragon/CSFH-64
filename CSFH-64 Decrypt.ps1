@@ -2,6 +2,29 @@ function CSFH-64Decrypt{
 param(
 [Parameter(Mandatory=$true)][string]$Filepath
 )
+#Grabs random key from user
+[int]$userkey=Read-Host "Please enter your decryption key number"
+if($userkey -is [int] -and $userkey -le 20){
+[int]$bytelength=$byte.Length
+$remainder=$bytelength % $userkey
+[System.Collections.ArrayList]$keystring=[convert]::ToString($remainder,2) -split ""
+$keystring.RemoveAt(0)
+$keystring.RemoveAt($keystring.Count - 1)
+$keyarray=@(foreach($item in $keystring){$item})
+[array]::Reverse($keyarray)
+$x=0
+[System.Collections.ArrayList]$finalbinarykey=@(foreach($bit in $keyarray){
+$bit2=$keystring[$x]
+$bit2=[convert]::ToInt64($bit2,2)
+$bit=[convert]::ToInt64($bit,2)
+$result=$bit -bxor $bit2
+$result})
+$finalkeybinaryresult=$finalbinarykey -join ""
+$finalkeynumber=[convert]::ToInt64($finalkeybinaryresult,2)}
+
+
+
+#----------------------------------------------------------------------------------#
 $x=0
 [System.Collections.ArrayList]$finalbyte=@()
 $user=whoami
@@ -637,7 +660,8 @@ $key3=24
 
 [System.Collections.ArrayList]$combinedarray2=@(foreach($item in $newarray){
 $number=[convert]::ToInt32($item,10)
-$value2=$number+$key3
+$value2=$number-$finalkeynumber
+$value2=$value2+$key3
 $value2=$value2/($key2-$key1)
 $value2=$value2-$key1
 $value2
