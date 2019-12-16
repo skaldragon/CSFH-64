@@ -641,13 +641,37 @@ $zipfilelocation="C:\Users\$env:username\Desktop\ZipfileFolder"
 $key1=7
 $key2=17
 $key3=24
+[int]$userkey=Read-Host "Please enter a random numeric value between 1-20"
+if($userkey -is [int] -and $userkey -le 20){
+[int]$bytelength=$byte.Length
+$remainder=$bytelength % $userkey
+[System.Collections.ArrayList]$keystring=[convert]::ToString($remainder,2) -split ""
+$keystring.RemoveAt(0)
+$keystring.RemoveAt($keystring.Count - 1)
+$keyarray=@(foreach($item in $keystring){$item})
+[array]::Reverse($keyarray)
+$x=0
+[System.Collections.ArrayList]$finalbinarykey=@(foreach($bit in $keyarray){
+$bit2=$keystring[$x]
+$bit2=[convert]::ToInt64($bit2,2)
+$bit=[convert]::ToInt64($bit,2)
+$result=$bit -bxor $bit2
+$result})
+$finalkeybinaryresult=$finalbinarykey -join ""
+$finalkeynumber=[convert]::ToInt64($finalkeybinaryresult,2)
+
 [System.Collections.ArrayList]$combinedarray=@(foreach($bit in $byte){
 $value=$bit+$key1
 $value=$value*($key2-$key1)
 $value=$value-$key3
+$value=$value + $finalkeynumber
 $value
 })
 $combinedarray+="`n$64Hash"
 $combinedarray | Out-File -FilePath $Dest
 Remove-Item -Path $zipfilelocation
+}
+else{
+Write-Host "Sorry that wasn't a number or 20 or less"
+}
 }
