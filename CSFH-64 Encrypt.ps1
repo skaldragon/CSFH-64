@@ -4,8 +4,7 @@ param(
 )
 $x=0
 [System.Collections.ArrayList]$finalbyte=@()
-$user=whoami
-$string=(gwmi win32_account | Where-Object{$_.caption -eq "$user"}| select SID).SID
+$string=[System.Security.Principal.WindowsIdentity]::GetCurrent().User.Value
 $BinArray=""
 $ASstring=""
 $ASstring=[int[]][char[]]"$string"
@@ -622,7 +621,7 @@ $Finalbinaryjoined8=[convert]::ToString($Finalbinaryjoined8,16)
 $64Hash=$Finalbinaryjoined + $Finalbinaryjoined2 + $Finalbinaryjoined3 + $Finalbinaryjoined4 + $Finalbinaryjoined5 + $Finalbinaryjoined6 + $Finalbinaryjoined7 + $Finalbinaryjoined8
 
 
-$byte=Get-Content -Path $Filepath -Encoding Byte
+$documentOri=Get-Content -Path $Filepath
 $directory=(gci -Path $Filepath | select fullname).fullname
 
 $Filepath2=gci -Path $directory
@@ -641,37 +640,30 @@ $zipfilelocation="C:\Users\$env:username\Desktop\ZipfileFolder"
 $key1=7
 $key2=17
 $key3=24
-[int]$userkey=Read-Host "Please enter a random numeric value between 1-20"
-if($userkey -is [int] -and $userkey -le 20){
-[int]$bytelength=$byte.Length
-$remainder=$bytelength % $userkey
-[System.Collections.ArrayList]$keystring=[convert]::ToString($remainder,2) -split ""
-$keystring.RemoveAt(0)
-$keystring.RemoveAt($keystring.Count - 1)
-$keyarray=@(foreach($item in $keystring){$item})
-[array]::Reverse($keyarray)
-$x=0
-[System.Collections.ArrayList]$finalbinarykey=@(foreach($bit in $keyarray){
-$bit2=$keystring[$x]
-$bit2=[convert]::ToInt64($bit2,2)
-$bit=[convert]::ToInt64($bit,2)
-$result=$bit -bxor $bit2
-$result})
-$finalkeybinaryresult=$finalbinarykey -join ""
-$finalkeynumber=[convert]::ToInt64($finalkeybinaryresult,2)
-
-[System.Collections.ArrayList]$combinedarray=@(foreach($bit in $byte){
-$value=$bit+$key1
-$value=$value*($key2-$key1)
-$value=$value-$key3
-$value=$value + $finalkeynumber
-$value
+[System.Collections.ArrayList]$ASstring=@([int[]][char[]]"$string")
+if($ASstring.Count -gt 32){
+$testcount=($ASstring.Count - 31)- 1
+$ASstring.RemoveRange(32,$testcount)
+}
+[System.Collections.ArrayList]$Matharray=@(foreach($byte in $ASstring){
+$testmath=[math]::Round([math]::Log($byte) / [math]::Log(2))
+$testmath= ($testmath+([math]::Round([math]::Sqrt(256-$testmath)))) * $testmath
+$testmath
 })
-$combinedarray+="`n$64Hash"
-$combinedarray | Out-File -FilePath $Dest
+
+
+
+$keyarray=$Matharray -join ","
+$keyarray=$keyarray.Split(",").Replace("`(","").Replace("`)","");
+[byte[]]$key=$keyarray
+
+$document=$documentOri | Out-String;
+$secure= ConvertTo-SecureString $document -AsPlainText -Force;
+$export= ConvertFrom-SecureString $secure -Key $key;
+$export+="`n$64Hash"
+
+
+Set-Content $Dest $export;
+
 Remove-Item -Path $zipfilelocation
-}
-else{
-Write-Host "Sorry that wasn't a number or 20 or less"
-}
 }
