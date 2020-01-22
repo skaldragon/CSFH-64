@@ -6,3 +6,7 @@ A hashing and encryption and decryption algorithm for powershell with user Verif
 
 # Version 2.0
 * Able to Encrypt and Decrypt any file type and faster than before!
+
+# Version 3.0
+* Created unique user 32bit key for encryption rather than just a random element!
+* Hashes faster and encrypts stronger!
