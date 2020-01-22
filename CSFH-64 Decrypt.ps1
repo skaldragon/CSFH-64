@@ -2,33 +2,9 @@ function CSFH-64Decrypt{
 param(
 [Parameter(Mandatory=$true)][string]$Filepath
 )
-#Grabs random key from user
-[int]$userkey=Read-Host "Please enter your decryption key number"
-if($userkey -is [int] -and $userkey -le 20){
-[int]$bytelength=$byte.Length
-$remainder=$bytelength % $userkey
-[System.Collections.ArrayList]$keystring=[convert]::ToString($remainder,2) -split ""
-$keystring.RemoveAt(0)
-$keystring.RemoveAt($keystring.Count - 1)
-$keyarray=@(foreach($item in $keystring){$item})
-[array]::Reverse($keyarray)
-$x=0
-[System.Collections.ArrayList]$finalbinarykey=@(foreach($bit in $keyarray){
-$bit2=$keystring[$x]
-$bit2=[convert]::ToInt64($bit2,2)
-$bit=[convert]::ToInt64($bit,2)
-$result=$bit -bxor $bit2
-$result})
-$finalkeybinaryresult=$finalbinarykey -join ""
-$finalkeynumber=[convert]::ToInt64($finalkeybinaryresult,2)}
-
-
-
-#----------------------------------------------------------------------------------#
 $x=0
 [System.Collections.ArrayList]$finalbyte=@()
-$user=whoami
-$string=(gwmi win32_account | Where-Object{$_.caption -eq "$user"}| select SID).SID
+$string=[System.Security.Principal.WindowsIdentity]::GetCurrent().User.Value
 $BinArray=""
 $ASstring=""
 $ASstring=[int[]][char[]]"$string"
@@ -647,29 +623,31 @@ $64Hash=$Finalbinaryjoined + $Finalbinaryjoined2 + $Finalbinaryjoined3 + $Finalb
 
 
 $test=Get-Content -Path $Filepath -Tail 1
+$document=Get-Content -Path $Filepath | select -First 1
 
 if($test -eq $64Hash){
-$content=Get-Content -Path $Filepath
-[int]$counter=$content.Length
-$counter=$counter-2
 
-$newarray=Get-Content -Path $Filepath | select -First $counter
-$key1=7
-$key2=17
-$key3=24
+#Doing math for key on file
+[System.Collections.ArrayList]$ASstring=@([int[]][char[]]"$string")
+if($ASstring.Count -gt 32){
+$testcount=($ASstring.Count - 31)- 1
+$ASstring.RemoveRange(32,$testcount)
+}
 
-[System.Collections.ArrayList]$combinedarray2=@(foreach($item in $newarray){
-$number=[convert]::ToInt32($item,10)
-$value2=$number-$finalkeynumber
-$value2=$value2+$key3
-$value2=$value2/($key2-$key1)
-$value2=$value2-$key1
-$value2
+[System.Collections.ArrayList]$Matharray=@(foreach($byte in $ASstring){
+$testmath=[math]::Round([math]::Log($byte) / [math]::Log(2))
+$testmath= ($testmath+([math]::Round([math]::Sqrt(256-$testmath)))) * $testmath
+$testmath
 })
-Clear-Content -Path $Filepath
+$keyarray=$Matharray -join ","
+$keyarray=$keyarray.Split(",").Replace("`(","").Replace("`)","");
+[byte[]]$key=$keyarray
 
+$secure2= ConvertTo-SecureString $document -key $key;
+$export2=[System.Runtime.InteropServices.Marshal]::SecureStringToBSTR($secure2);
+$newstring= [System.Runtime.InteropServices.Marshal]::PtrToStringAuto($export2);
 $endpath=(Read-Host "Where do you want your file to go? Include File and Extension")
-[IO.File]::WriteAllBytes("C:\users\$env:username\desktop\$endpath",$combinedarray2)
+Set-Content $endpath $newstring
 Remove-Item -Path $Filepath
 }
 else{
