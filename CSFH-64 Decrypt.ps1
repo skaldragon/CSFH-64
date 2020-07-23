@@ -1,6 +1,7 @@
 function CSFH-64Decrypt{
 param(
-[Parameter(Mandatory=$true)][string]$Filepath
+[Parameter(Mandatory=$true)][string]$Filepath,
+[Parameter(Mandatory=$false)][switch]$RemoveOriginal
 )
 $x=0
 [System.Collections.ArrayList]$finalbyte=@()
@@ -622,7 +623,9 @@ $64Hash=$Finalbinaryjoined + $Finalbinaryjoined2 + $Finalbinaryjoined3 + $Finalb
 
 
 
-$test=Get-Content -Path $Filepath -Tail 1
+$test=Get-Content -Path $Filepath
+$test=$test.Where({$_ -ne ""})
+$test=$test | select -Last 1
 $document=Get-Content -Path $Filepath | select -First 1
 
 if($test -eq $64Hash){
@@ -648,7 +651,9 @@ $export2=[System.Runtime.InteropServices.Marshal]::SecureStringToBSTR($secure2);
 $newstring= [System.Runtime.InteropServices.Marshal]::PtrToStringAuto($export2);
 $endpath=(Read-Host "Where do you want your file to go? Include File and Extension")
 Set-Content $endpath $newstring
+if($RemoveOriginal){
 Remove-Item -Path $Filepath
+}
 }
 else{
 Write-Host "You are not able to decrypt this file" -ForegroundColor Red
