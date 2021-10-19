@@ -637,9 +637,7 @@ $zipfilelocation="C:\Users\$env:username\Desktop\ZipfileFolder"
 
 [Reflection.Assembly]::LoadWithPartialName( "System.IO.Compression.FileSystem" )
 [System.IO.Compression.ZipFile]::CreateFromDirectory($zipfilelocation,$Dest)
-$key1=7
-$key2=17
-$key3=24
+
 [System.Collections.ArrayList]$ASstring=@([int[]][char[]]"$string")
 if($ASstring.Count -gt 32){
 $testcount=($ASstring.Count - 31)- 1
