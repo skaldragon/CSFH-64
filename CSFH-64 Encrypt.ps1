@@ -656,18 +656,52 @@ $keyarray=$Matharray -join ","
 $keyarray=$keyarray.Split(",").Replace("`(","").Replace("`)","");
 [byte[]]$key=$keyarray
 
+
+                if($exportkey){
+
+
+                $Testdate=Get-Date
+                $month=$Testdate.Month
+                $day=$Testdate.Day
+                $year=$Testdate.Year
+                $month=[convert]::ToString($month)
+                $day=[convert]::ToString($day)
+                $year=[convert]::ToString($year)
+                if($month.Length -eq 1){
+                $month="0$month"
+                }
+                if($day.Length -eq 1){
+
+                }
+
+                [System.Collections.ArrayList]$date=@($year,$month,$day)
+                $date -join ""
+                $time=$Testdate.Hour,$Testdate.Minute, $Testdate.Second -join ""
+                $date+=$time
+                $daterandom=$date -join ""
+                $finaldate=$daterandom.ToCharArray()
+                $testkey=$key.Length - $finaldate.Length
+                $key=$key | select -first $testkey
+
+                $key=$key+$finaldate
+                Write-host "SAVE KEY AS A TXT FILE" -ForegroundColor RED
+                Sleep -s 3
+                Add-Type -AssemblyName System.Windows.Forms
+                $FileBrowser = New-Object System.Windows.Forms.SaveFileDialog -Property @{ InitialDirectory = [Environment]::GetFolderPath('Desktop') }
+                $null = $FileBrowser.ShowDialog()
+
+                $key | Out-File -FilePath $FileBrowser.FileName
+
+                $document=$documentOri | Out-String;
+                $secure= ConvertTo-SecureString $document -AsPlainText -Force;
+                $export= ConvertFrom-SecureString $secure -Key $key;
+                $export+="`n$64Hash"
+}
+else{
 $document=$documentOri | Out-String;
 $secure= ConvertTo-SecureString $document -AsPlainText -Force;
 $export= ConvertFrom-SecureString $secure -Key $key;
 $export+="`n$64Hash"
-if($exportkey){
-Write-host "SAVE KEY AS A TXT FILE" -ForegroundColor RED
-Sleep -s 3
-Add-Type -AssemblyName System.Windows.Forms
-$FileBrowser = New-Object System.Windows.Forms.SaveFileDialog -Property @{ InitialDirectory = [Environment]::GetFolderPath('Desktop') }
-$null = $FileBrowser.ShowDialog()
-
-$key | Out-File -FilePath $FileBrowser.FileName
 }
 Set-Content $Dest $export;
 
