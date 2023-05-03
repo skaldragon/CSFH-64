@@ -1,6 +1,7 @@
 function CSFH-64Encrypt{
 param(
-[Parameter(Mandatory=$true)][string]$Filepath
+[Parameter(Mandatory=$true)][string]$Filepath,
+[Parameter(Mandatory=$false)][switch]$exportkey
 )
 $x=0
 [System.Collections.ArrayList]$finalbyte=@()
@@ -659,8 +660,15 @@ $document=$documentOri | Out-String;
 $secure= ConvertTo-SecureString $document -AsPlainText -Force;
 $export= ConvertFrom-SecureString $secure -Key $key;
 $export+="`n$64Hash"
+if($exportkey){
+Write-host "SAVE KEY AS A TXT FILE" -ForegroundColor RED
+Sleep -s 3
+Add-Type -AssemblyName System.Windows.Forms
+$FileBrowser = New-Object System.Windows.Forms.SaveFileDialog -Property @{ InitialDirectory = [Environment]::GetFolderPath('Desktop') }
+$null = $FileBrowser.ShowDialog()
 
-
+$key | Out-File -FilePath $FileBrowser.FileName
+}
 Set-Content $Dest $export;
 
 Remove-Item -Path $zipfilelocation
