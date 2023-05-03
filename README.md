@@ -10,3 +10,8 @@ A hashing and encryption and decryption algorithm for powershell with user Verif
 # Version 3.0
 * Created unique user 32bit key for encryption rather than just a random element!
 * Hashes faster and encrypts stronger!
+* 
+# Version 4.0
+* You can now export keys for decryption amongst multiple users
+* You can now import keys for decryption of files from trusted users.
+* Better save and import file visuals
