@@ -15,3 +15,5 @@ A hashing and encryption and decryption algorithm for powershell with user Verif
 * You can now export keys for decryption amongst multiple users
 * You can now import keys for decryption of files from trusted users.
 * Better save and import file visuals
+# Version 4.1.0
+* Random element to key generation on exporting of key!
