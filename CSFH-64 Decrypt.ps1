@@ -1,7 +1,8 @@
 function CSFH-64Decrypt{
 param(
 [Parameter(Mandatory=$true)][string]$Filepath,
-[Parameter(Mandatory=$false)][switch]$RemoveOriginal
+[Parameter(Mandatory=$false)][switch]$RemoveOriginal,
+[Parameter(Mandatory=$false)][switch]$importkey
 )
 $x=0
 [System.Collections.ArrayList]$finalbyte=@()
@@ -628,6 +629,38 @@ $test=$test.Where({$_ -ne ""})
 $test=$test | select -Last 1
 $document=Get-Content -Path $Filepath | select -First 1
 
+if($importkey){
+
+Write-host "OPEN KEY.TXT FILE" -ForegroundColor RED
+Sleep -Seconds 3
+Add-Type -AssemblyName System.Windows.Forms
+$FileBrowser = New-Object System.Windows.Forms.OpenFileDialog -Property @{ InitialDirectory = [Environment]::GetFolderPath('Desktop') }
+$null = $FileBrowser.ShowDialog()
+$keyresult=Get-content $FileBrowser.FileName
+$key=$keyresult
+
+$secure2= ConvertTo-SecureString $document -key $key;
+$export2=[System.Runtime.InteropServices.Marshal]::SecureStringToBSTR($secure2);
+$newstring= [System.Runtime.InteropServices.Marshal]::PtrToStringAuto($export2);
+
+Write-Host "Where do you want your file to go? Include File and Extension" -ForegroundColor Red
+Sleep -s 3
+$SavedFile = New-Object System.Windows.Forms.SaveFileDialog -Property @{ InitialDirectory = [Environment]::GetFolderPath('Desktop') }
+$null = $SavedFile.ShowDialog()
+
+
+
+
+Set-Content $SavedFile.FileName $newstring
+if($RemoveOriginal){
+Remove-Item -Path $Filepath
+}
+
+}
+else{
+
+
+
 if($test -eq $64Hash){
 
 #Doing math for key on file
@@ -646,16 +679,26 @@ $keyarray=$Matharray -join ","
 $keyarray=$keyarray.Split(",").Replace("`(","").Replace("`)","");
 [byte[]]$key=$keyarray
 
+
 $secure2= ConvertTo-SecureString $document -key $key;
 $export2=[System.Runtime.InteropServices.Marshal]::SecureStringToBSTR($secure2);
 $newstring= [System.Runtime.InteropServices.Marshal]::PtrToStringAuto($export2);
-$endpath=(Read-Host "Where do you want your file to go? Include File and Extension")
-Set-Content $endpath $newstring
+
+Write-Host "Where do you want your file to go? Include File and Extension" -ForegroundColor Red
+Sleep -s 3
+$SavedFile = New-Object System.Windows.Forms.SaveFileDialog -Property @{ InitialDirectory = [Environment]::GetFolderPath('Desktop') }
+$null = $SavedFile.ShowDialog()
+
+
+Set-Content $SavedFile.FileName $newstring
+
+
 if($RemoveOriginal){
 Remove-Item -Path $Filepath
 }
 }
 else{
 Write-Host "You are not able to decrypt this file" -ForegroundColor Red
+}
 }
 }
