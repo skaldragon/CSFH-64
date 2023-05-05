@@ -625,19 +625,6 @@ $64Hash=$Finalbinaryjoined + $Finalbinaryjoined2 + $Finalbinaryjoined3 + $Finalb
 $documentOri=Get-Content -Path $Filepath
 $directory=(gci -Path $Filepath | select fullname).fullname
 
-$Filepath2=gci -Path $directory
-$Zip=$Filepath2.fullname
-$ZipE=".zip"
-$Zip=$Zip.Split(".")
-$Dest=$Zip[0],$ZipE -join ""
-
-#Create new folder for zipping
-New-Item -Path C:\Users\$env:username\Desktop -Name ZipfileFolder -ItemType directory
-Move-Item -Path $Filepath -Destination C:\Users\$env:username\Desktop\ZipfileFolder
-$zipfilelocation="C:\Users\$env:username\Desktop\ZipfileFolder"
-
-[Reflection.Assembly]::LoadWithPartialName( "System.IO.Compression.FileSystem" )
-[System.IO.Compression.ZipFile]::CreateFromDirectory($zipfilelocation,$Dest)
 
 [System.Collections.ArrayList]$ASstring=@([int[]][char[]]"$string")
 if($ASstring.Count -gt 32){
@@ -649,7 +636,6 @@ $testmath=[math]::Round([math]::Log($byte) / [math]::Log(2))
 $testmath= ($testmath+([math]::Round([math]::Sqrt(256-$testmath)))) * $testmath
 $testmath
 })
-
 
 
 $keyarray=$Matharray -join ","
@@ -703,7 +689,6 @@ $secure= ConvertTo-SecureString $document -AsPlainText -Force;
 $export= ConvertFrom-SecureString $secure -Key $key;
 $export+="`n$64Hash"
 }
-Set-Content $Dest $export;
+Set-Content $directory $export;
 
-Remove-Item -Path $zipfilelocation
 }
