@@ -1,7 +1,6 @@
 function CSFH-64Decrypt{
 param(
 [Parameter(Mandatory=$true)][string]$Filepath,
-[Parameter(Mandatory=$false)][switch]$RemoveOriginal,
 [Parameter(Mandatory=$false)][switch]$importkey
 )
 $x=0
@@ -693,9 +692,6 @@ $null = $SavedFile.ShowDialog()
 Set-Content $SavedFile.FileName $newstring
 
 
-if($RemoveOriginal){
-Remove-Item -Path $Filepath
-}
 }
 else{
 Write-Host "You are not able to decrypt this file" -ForegroundColor Red
