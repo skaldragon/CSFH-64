@@ -1,4 +1,4 @@
-# CURRENT VERSIONS WORKS FINE, FOUND ISSUE FOR LARGE FILES, WORKING ON FIX
+# CURRENT VERSION WORKS FINE, FOUND ISSUE FOR LARGE FILES, WORKING ON FIX
 
 # CSFH-64
 A hashing and encryption and decryption algorithm for powershell with user Verification
