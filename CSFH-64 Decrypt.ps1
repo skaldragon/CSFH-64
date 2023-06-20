@@ -641,6 +641,23 @@ Write-Host "Where do you want your file to go? Include File and Extension" -Fore
 Sleep -s 3
 $SavedFile = New-Object System.Windows.Forms.SaveFileDialog -Property @{ InitialDirectory = [Environment]::GetFolderPath('Desktop') }
 $null = $SavedFile.ShowDialog()
+$File = Get-Item -Path $Filepath -ErrorAction SilentlyContinue
+$cipherBytes = [System.IO.File]::ReadAllBytes($File.FullName)
+$outPath = $SavedFile.FileName
+$aes = New-Object System.Security.Cryptography.AesManaged
+$aes.Mode = [System.Security.Cryptography.CipherMode]::CBC
+$aes.Padding = [System.Security.Cryptography.PaddingMode]::Zeros
+$aes.BlockSize = 128
+$aes.KeySize = 256
+$aes.Key = $key
+$aes.IV = $cipherBytes[0..15]
+$decryptor = $aes.CreateDecryptor()
+$decryptedBytes = $decryptor.TransformFinalBlock($cipherBytes, 16, $cipherBytes.Length - 16)
+$aes.Dispose()
+[System.IO.File]::WriteAllBytes($outPath, $decryptedBytes)
+Remove-Item -Path $Filepath -Force
+Remove-Item -Path $FileBrowser.FileName -Force
+
 }
 }
 
@@ -651,7 +668,7 @@ $SavedFile = New-Object System.Windows.Forms.SaveFileDialog -Property @{ Initial
 $null = $SavedFile.ShowDialog()
 $File = Get-Item -Path $Filepath -ErrorAction SilentlyContinue
 $cipherBytes = [System.IO.File]::ReadAllBytes($File.FullName)
-$outPath = $File.FullName -replace ".aes"
+$outPath = $SavedFile.FileName
 $aes = New-Object System.Security.Cryptography.AesManaged
 $aes.Mode = [System.Security.Cryptography.CipherMode]::CBC
 $aes.Padding = [System.Security.Cryptography.PaddingMode]::Zeros
