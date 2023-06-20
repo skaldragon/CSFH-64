@@ -2,7 +2,7 @@ function CSFH-64Decrypt{
 param(
 [Parameter(Mandatory=$true)][string]$Filepath,
 #Used when you are the only person able to decrypt your file
-[Parameter(Mandatory=$false)][string]$privatefile
+[Parameter(Mandatory=$false)][switch]$privatefile
 )
 $x=0
 [System.Collections.ArrayList]$finalbyte=@()
