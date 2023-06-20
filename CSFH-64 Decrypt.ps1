@@ -662,6 +662,11 @@ Remove-Item -Path $FileBrowser.FileName -Force
 }
 
 elseif(!$privatefile){
+$exists=(Get-Item -Path $FileBrowser.FileName -Stream Verification).Stream 
+if($exists){
+Write-Host "You are not able to decrypt this file" -ForegroundColor Red
+}
+else{
 Write-Host "Where do you want your file to go? Include File and Extension" -ForegroundColor Red
 Sleep -s 3
 $SavedFile = New-Object System.Windows.Forms.SaveFileDialog -Property @{ InitialDirectory = [Environment]::GetFolderPath('Desktop') }
@@ -682,6 +687,7 @@ $aes.Dispose()
 [System.IO.File]::WriteAllBytes($outPath, $decryptedBytes)
 Remove-Item -Path $Filepath -Force
 Remove-Item -Path $FileBrowser.FileName -Force
+}
 }
 
 
