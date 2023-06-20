@@ -1,6 +1,8 @@
 function CSFH-64Decrypt{
 param(
-[Parameter(Mandatory=$true)][string]$Filepath
+[Parameter(Mandatory=$true)][string]$Filepath,
+#Used when you are the only person able to decrypt your file
+[Parameter(Mandatory=$false)][string]$privatefile
 )
 $x=0
 [System.Collections.ArrayList]$finalbyte=@()
@@ -629,17 +631,24 @@ $null = $FileBrowser.ShowDialog()
 $keyresult=Get-content $FileBrowser.FileName
 $key=$keyresult
 
+
+
+if($privatefile){
 $Stream="Verification"
 $Verification=Get-Content -Stream $Stream -Path $FileBrowser.FileName
-
-
 if($Verification -eq $64Hash){
 Write-Host "Where do you want your file to go? Include File and Extension" -ForegroundColor Red
 Sleep -s 3
 $SavedFile = New-Object System.Windows.Forms.SaveFileDialog -Property @{ InitialDirectory = [Environment]::GetFolderPath('Desktop') }
 $null = $SavedFile.ShowDialog()
+}
+}
 
-
+elseif(!$privatefile){
+Write-Host "Where do you want your file to go? Include File and Extension" -ForegroundColor Red
+Sleep -s 3
+$SavedFile = New-Object System.Windows.Forms.SaveFileDialog -Property @{ InitialDirectory = [Environment]::GetFolderPath('Desktop') }
+$null = $SavedFile.ShowDialog()
 $File = Get-Item -Path $Filepath -ErrorAction SilentlyContinue
 $cipherBytes = [System.IO.File]::ReadAllBytes($File.FullName)
 $outPath = $File.FullName -replace ".aes"
