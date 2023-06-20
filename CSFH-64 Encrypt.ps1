@@ -1,7 +1,6 @@
 function CSFH-64Encrypt{
 param(
-[Parameter(Mandatory=$true)][string]$Filepath,
-[Parameter(Mandatory=$false)][switch]$exportkey
+[Parameter(Mandatory=$true)][string]$Filepath
 )
 $x=0
 [System.Collections.ArrayList]$finalbyte=@()
@@ -622,9 +621,6 @@ $Finalbinaryjoined8=[convert]::ToString($Finalbinaryjoined8,16)
 $64Hash=$Finalbinaryjoined + $Finalbinaryjoined2 + $Finalbinaryjoined3 + $Finalbinaryjoined4 + $Finalbinaryjoined5 + $Finalbinaryjoined6 + $Finalbinaryjoined7 + $Finalbinaryjoined8
 
 
-$documentOri=Get-Content -Path $Filepath
-$directory=(gci -Path $Filepath | select fullname).fullname
-
 
 [System.Collections.ArrayList]$ASstring=@([int[]][char[]]"$string")
 if($ASstring.Count -gt 32){
@@ -643,52 +639,58 @@ $keyarray=$keyarray.Split(",").Replace("`(","").Replace("`)","");
 [byte[]]$key=$keyarray
 
 
-                if($exportkey){
+$aes= New-Object System.Security.Cryptography.AesManaged
+$aes.Mode = [System.Security.Cryptography.CipherMode]::CBC
+$aes.Padding = [System.Security.Cryptography.PaddingMode]::Zeros
+$aes.BlockSize = 128
+$aes.KeySize = 256
 
 
-                $Testdate=Get-Date
-                $month=$Testdate.Month
-                $day=$Testdate.Day
-                $year=$Testdate.Year
-                $month=[convert]::ToString($month)
-                $day=[convert]::ToString($day)
-                $year=[convert]::ToString($year)
-                if($month.Length -eq 1){
-                $month="0$month"
-                }
-                if($day.Length -eq 1){
-
-                }
-
-                [System.Collections.ArrayList]$date=@($year,$month,$day)
-                $date -join ""
-                $time=$Testdate.Hour,$Testdate.Minute, $Testdate.Second -join ""
-                $date+=$time
-                $daterandom=$date -join ""
-                $finaldate=$daterandom.ToCharArray()
-                $testkey=$key.Length - $finaldate.Length
-                $key=$key | select -first $testkey
-
-                $key=$key+$finaldate
-                Write-host "SAVE KEY AS A TXT FILE" -ForegroundColor RED
-                Sleep -s 3
-                Add-Type -AssemblyName System.Windows.Forms
-                $FileBrowser = New-Object System.Windows.Forms.SaveFileDialog -Property @{ InitialDirectory = [Environment]::GetFolderPath('Desktop') }
-                $null = $FileBrowser.ShowDialog()
-
-                $key | Out-File -FilePath $FileBrowser.FileName
-
-                $document=$documentOri | Out-String;
-                $secure= ConvertTo-SecureString $document -AsPlainText -Force;
-                $export= ConvertFrom-SecureString $secure -Key $key;
-                $export+="`n$64Hash"
+$Testdate=Get-Date
+$month=$Testdate.Month
+$day=$Testdate.Day
+$year=$Testdate.Year
+$month=[convert]::ToString($month)
+$day=[convert]::ToString($day)
+$year=[convert]::ToString($year)
+if($month.Length -eq 1){
+$month="0$month"
 }
-else{
-$document=$documentOri | Out-String;
-$secure= ConvertTo-SecureString $document -AsPlainText -Force;
-$export= ConvertFrom-SecureString $secure -Key $key;
-$export+="`n$64Hash"
-}
-Set-Content $directory $export;
+if($day.Length -eq 1){
 
+}
+
+[System.Collections.ArrayList]$date=@($year,$month,$day)
+$date -join ""
+$time=$Testdate.Hour,$Testdate.Minute, $Testdate.Second -join ""
+$date+=$time
+$daterandom=$date -join ""
+$finaldate=$daterandom.ToCharArray()
+$testkey=$key.Length - $finaldate.Length
+$key=$key | select -first $testkey
+
+$key=$key+$finaldate
+Write-host "SAVE KEY AS A TXT FILE" -ForegroundColor RED
+Sleep -s 3
+Add-Type -AssemblyName System.Windows.Forms
+$FileBrowser = New-Object System.Windows.Forms.SaveFileDialog -Property @{ InitialDirectory = [Environment]::GetFolderPath('Desktop') }
+$null = $FileBrowser.ShowDialog()
+
+$key | Out-File -FilePath $FileBrowser.FileName
+
+$aes.Key = $key
+$File = Get-Item -Path $Filepath -ErrorAction SilentlyContinue
+$plainBytes = [System.IO.File]::ReadAllBytes($File.FullName)
+$outPath = $File.FullName + ".aes"
+$stream="Verification"
+Add-Content -Stream $stream -Path $FileBrowser.FileName -Value $64Hash
+$encryptor = $aes.CreateEncryptor()
+$encryptedBytes = $encryptor.TransformFinalBlock($plainBytes, 0, $plainBytes.Length)
+$encryptedBytes = $aes.IV + $encryptedBytes
+$aes.Dispose()
+[System.IO.File]::WriteAllBytes($outPath, $encryptedBytes)
+(Get-Item $outPath).LastWriteTime = $File.LastWriteTime
+Remove-Item -Path $Filepath
+
+              
 }
