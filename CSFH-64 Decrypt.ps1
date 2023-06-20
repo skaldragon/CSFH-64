@@ -1,7 +1,6 @@
 function CSFH-64Decrypt{
 param(
-[Parameter(Mandatory=$true)][string]$Filepath,
-[Parameter(Mandatory=$false)][switch]$importkey
+[Parameter(Mandatory=$true)][string]$Filepath
 )
 $x=0
 [System.Collections.ArrayList]$finalbyte=@()
@@ -622,15 +621,7 @@ $Finalbinaryjoined8=[convert]::ToString($Finalbinaryjoined8,16)
 $64Hash=$Finalbinaryjoined + $Finalbinaryjoined2 + $Finalbinaryjoined3 + $Finalbinaryjoined4 + $Finalbinaryjoined5 + $Finalbinaryjoined6 + $Finalbinaryjoined7 + $Finalbinaryjoined8
 
 
-
-$test=Get-Content -Path $Filepath
-$test=$test.Where({$_ -ne ""})
-$test=$test | select -Last 1
-$document=Get-Content -Path $Filepath | select -First 1
-
-if($importkey){
-
-Write-host "OPEN KEY.TXT FILE" -ForegroundColor RED
+Write-host "OPEN KEY.TXT FILE FOR THIS FILE TO DECRYPT" -ForegroundColor RED
 Sleep -Seconds 3
 Add-Type -AssemblyName System.Windows.Forms
 $FileBrowser = New-Object System.Windows.Forms.OpenFileDialog -Property @{ InitialDirectory = [Environment]::GetFolderPath('Desktop') }
@@ -638,63 +629,37 @@ $null = $FileBrowser.ShowDialog()
 $keyresult=Get-content $FileBrowser.FileName
 $key=$keyresult
 
-$secure2= ConvertTo-SecureString $document -key $key;
-$export2=[System.Runtime.InteropServices.Marshal]::SecureStringToBSTR($secure2);
-$newstring= [System.Runtime.InteropServices.Marshal]::PtrToStringAuto($export2);
+$Stream="Verification"
+$Verification=Get-Content -Stream $Stream -Path $FileBrowser.FileName
 
+
+if($Verification -eq $64Hash){
 Write-Host "Where do you want your file to go? Include File and Extension" -ForegroundColor Red
 Sleep -s 3
 $SavedFile = New-Object System.Windows.Forms.SaveFileDialog -Property @{ InitialDirectory = [Environment]::GetFolderPath('Desktop') }
 $null = $SavedFile.ShowDialog()
 
 
-
-
-Set-Content $SavedFile.FileName $newstring
-if($RemoveOriginal){
-Remove-Item -Path $Filepath
+$File = Get-Item -Path $Filepath -ErrorAction SilentlyContinue
+$cipherBytes = [System.IO.File]::ReadAllBytes($File.FullName)
+$outPath = $File.FullName -replace ".aes"
+$aes = New-Object System.Security.Cryptography.AesManaged
+$aes.Mode = [System.Security.Cryptography.CipherMode]::CBC
+$aes.Padding = [System.Security.Cryptography.PaddingMode]::Zeros
+$aes.BlockSize = 128
+$aes.KeySize = 256
+$aes.Key = $key
+$aes.IV = $cipherBytes[0..15]
+$decryptor = $aes.CreateDecryptor()
+$decryptedBytes = $decryptor.TransformFinalBlock($cipherBytes, 16, $cipherBytes.Length - 16)
+$aes.Dispose()
+[System.IO.File]::WriteAllBytes($outPath, $decryptedBytes)
+Remove-Item -Path $Filepath -Force
+Remove-Item -Path $FileBrowser.FileName -Force
 }
 
-}
-else{
 
-
-
-if($test -eq $64Hash){
-
-#Doing math for key on file
-[System.Collections.ArrayList]$ASstring=@([int[]][char[]]"$string")
-if($ASstring.Count -gt 32){
-$testcount=($ASstring.Count - 31)- 1
-$ASstring.RemoveRange(32,$testcount)
-}
-
-[System.Collections.ArrayList]$Matharray=@(foreach($byte in $ASstring){
-$testmath=[math]::Round([math]::Log($byte) / [math]::Log(2))
-$testmath= ($testmath+([math]::Round([math]::Sqrt(256-$testmath)))) * $testmath
-$testmath
-})
-$keyarray=$Matharray -join ","
-$keyarray=$keyarray.Split(",").Replace("`(","").Replace("`)","");
-[byte[]]$key=$keyarray
-
-
-$secure2= ConvertTo-SecureString $document -key $key;
-$export2=[System.Runtime.InteropServices.Marshal]::SecureStringToBSTR($secure2);
-$newstring= [System.Runtime.InteropServices.Marshal]::PtrToStringAuto($export2);
-
-Write-Host "Where do you want your file to go? Include File and Extension" -ForegroundColor Red
-Sleep -s 3
-$SavedFile = New-Object System.Windows.Forms.SaveFileDialog -Property @{ InitialDirectory = [Environment]::GetFolderPath('Desktop') }
-$null = $SavedFile.ShowDialog()
-
-
-Set-Content $SavedFile.FileName $newstring
-
-
-}
 else{
 Write-Host "You are not able to decrypt this file" -ForegroundColor Red
-}
 }
 }
