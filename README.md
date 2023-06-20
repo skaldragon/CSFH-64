@@ -1,4 +1,4 @@
-# CURRENT VERSION WORKS FINE, FOUND ISSUE FOR LARGE FILES, WORKING ON FIX
+# NEW CURRENT VERSION, FIXED BIG FILE ENCRYPTION
 
 # CSFH-64
 A hashing and encryption and decryption algorithm for powershell with user Verification
@@ -19,3 +19,6 @@ A hashing and encryption and decryption algorithm for powershell with user Verif
 * Better save and import file visuals
 # Version 4.1.0
 * Random element to key generation on exporting of key!
+# Version 4.1.5
+* Fixed Big File Encryption
+* Exports Key all the time to help with Verification.
