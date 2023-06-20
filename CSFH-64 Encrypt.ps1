@@ -1,6 +1,8 @@
 function CSFH-64Encrypt{
 param(
-[Parameter(Mandatory=$true)][string]$Filepath
+[Parameter(Mandatory=$true)][string]$Filepath,
+#Used when you want to be the only one able to decrypt your file
+[Parameter(Mandatory=$false)][string]$private
 )
 $x=0
 [System.Collections.ArrayList]$finalbyte=@()
@@ -682,8 +684,11 @@ $aes.Key = $key
 $File = Get-Item -Path $Filepath -ErrorAction SilentlyContinue
 $plainBytes = [System.IO.File]::ReadAllBytes($File.FullName)
 $outPath = $File.FullName + ".aes"
+if($private){
 $stream="Verification"
 Add-Content -Stream $stream -Path $FileBrowser.FileName -Value $64Hash
+}
+
 $encryptor = $aes.CreateEncryptor()
 $encryptedBytes = $encryptor.TransformFinalBlock($plainBytes, 0, $plainBytes.Length)
 $encryptedBytes = $aes.IV + $encryptedBytes
