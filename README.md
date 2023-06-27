@@ -1,9 +1,9 @@
-# NEW CURRENT VERSION, FIXED BIG FILE ENCRYPTION
+# Please Use Current Version As Is the Current Production Verison
 
 # CSFH-64
 A hashing and encryption and decryption algorithm for powershell with user Verification
 
-# Version 1.0
+# Version 1.0 
 * Added Encryption and Decryption versions of CSFH-64 both can only encrypt and decrypt .txt files right now but a further implementation and solution to encrypt any file is to be done.
 
 # Version 2.0
@@ -22,3 +22,4 @@ A hashing and encryption and decryption algorithm for powershell with user Verif
 # Version 4.1.5
 * Fixed Big File Encryption
 * Exports Key all the time to help with Verification.
+----------------------------
