@@ -25,3 +25,8 @@ A hashing and encryption and decryption algorithm for powershell with user Verif
 ----------------------------
 # Beta Versions below
 
+# Version 1.0
+* Added Datamethod for byte arrangment
+* In progress with Fracture and Complex Methods coming soon
+* Encryption write times soon to be implemented
+
