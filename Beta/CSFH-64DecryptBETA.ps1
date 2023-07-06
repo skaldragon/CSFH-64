@@ -1,4 +1,4 @@
-﻿function CSFH-64Decrypt{
+function CSFH-64Decrypt{
 param(
 [Parameter(Mandatory=$true)][string]$Filepath,
 [Parameter(Mandatory=$false)][ValidateSet("Simple","Fracture","Complex")][string]$DataMethod,
@@ -623,10 +623,11 @@ $Finalbinaryjoined8=[convert]::ToInt64($Finalbinaryjoined8,2)
 $Finalbinaryjoined8=[convert]::ToString($Finalbinaryjoined8,16)
 $64Hash=$Finalbinaryjoined + $Finalbinaryjoined2 + $Finalbinaryjoined3 + $Finalbinaryjoined4 + $Finalbinaryjoined5 + $Finalbinaryjoined6 + $Finalbinaryjoined7 + $Finalbinaryjoined8
 if($DataMethod -eq "Simple"){
-$FileContentByte=Get-Content -Path $Filepath -Encoding Byte
+$Filename=(gci -Path $Filepath).FullName
+$FileContentByte=Get-Content -Path $Filename -Encoding Byte
 $Filecount=$FileContentByte.Count -1
 $FileCountByte=$FileContentByte[$Filecount..0]
-[System.IO.File]::WriteAllBytes($Filepath,$FileCountByte)
+[System.IO.File]::WriteAllBytes($Filename,$FileCountByte)
 }
 
 Write-host "OPEN KEY.TXT FILE FOR THIS FILE TO DECRYPT" -ForegroundColor RED
