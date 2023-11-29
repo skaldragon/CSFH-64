@@ -1,6 +1,6 @@
-﻿function CSFH-64Encrypt{
+function CSFH-64Encrypt{
 param(
-[Parameter(Mandatory=$true)][string]$Filepath,
+[Parameter(Mandatory=$true)][switch]$Filepathauto,
 #Used when you want to be the only one able to decrypt your file
 [Parameter(Mandatory=$false)][switch]$private
 )
@@ -622,7 +622,12 @@ $Finalbinaryjoined8=[convert]::ToInt64($Finalbinaryjoined8,2)
 $Finalbinaryjoined8=[convert]::ToString($Finalbinaryjoined8,16)
 $64Hash=$Finalbinaryjoined + $Finalbinaryjoined2 + $Finalbinaryjoined3 + $Finalbinaryjoined4 + $Finalbinaryjoined5 + $Finalbinaryjoined6 + $Finalbinaryjoined7 + $Finalbinaryjoined8
 
-
+if($Filepathauto){
+Add-Type -AssemblyName System.Windows.Forms
+$Filepath = New-Object System.Windows.Forms.OpenFileDialog -Property @{ InitialDirectory = [Environment]::GetFolderPath('Desktop') }
+$null = $Filepath.ShowDialog()
+$Filepath=$Filepath.FileName
+}
 
 [System.Collections.ArrayList]$ASstring=@([int[]][char[]]"$string")
 if($ASstring.Count -gt 32){
