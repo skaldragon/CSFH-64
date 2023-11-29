@@ -1,6 +1,6 @@
 function CSFH-64Decrypt{
 param(
-[Parameter(Mandatory=$true)][string]$Filepath,
+[Parameter(Mandatory=$true)][switch]$Filepathauto,
 #Used when you are the only person able to decrypt your file
 [Parameter(Mandatory=$false)][switch]$privatefile
 )
@@ -623,6 +623,15 @@ $Finalbinaryjoined8=[convert]::ToString($Finalbinaryjoined8,16)
 $64Hash=$Finalbinaryjoined + $Finalbinaryjoined2 + $Finalbinaryjoined3 + $Finalbinaryjoined4 + $Finalbinaryjoined5 + $Finalbinaryjoined6 + $Finalbinaryjoined7 + $Finalbinaryjoined8
 
 
+
+
+if($Filepathauto){
+Add-Type -AssemblyName System.Windows.Forms
+$Filepath = New-Object System.Windows.Forms.OpenFileDialog -Property @{ InitialDirectory = [Environment]::GetFolderPath('Desktop') }
+$null = $Filepath.ShowDialog()
+$Filepath=$Filepath.FileName
+}
+
 Write-host "OPEN KEY.TXT FILE FOR THIS FILE TO DECRYPT" -ForegroundColor RED
 Sleep -Seconds 3
 Add-Type -AssemblyName System.Windows.Forms
@@ -659,14 +668,18 @@ Remove-Item -Path $Filepath -Force
 Remove-Item -Path $FileBrowser.FileName -Force
 
 }
-}#EndPrivateFile
+}
 
 elseif(!$privatefile){
 $exists=(Get-Item -Path $FileBrowser.FileName -Stream Verification).Stream
-if($exists){
+$Verification=Get-Content -Stream $Stream -Path $FileBrowser.FileName -ErrorAction SilentlyContinue
+if($Verification -ne $64Hash){
 Write-Host "You are not able to decrypt this file" -ForegroundColor Red
-break
+elseif($exists){
+Write-Host "You are not able to decrypt this file" -ForegroundColor Red
 }
+}
+else{
 Write-Host "Where do you want your file to go? Include File and Extension" -ForegroundColor Red
 Sleep -s 3
 $SavedFile = New-Object System.Windows.Forms.SaveFileDialog -Property @{ InitialDirectory = [Environment]::GetFolderPath('Desktop') }
@@ -687,5 +700,11 @@ $aes.Dispose()
 [System.IO.File]::WriteAllBytes($outPath, $decryptedBytes)
 Remove-Item -Path $Filepath -Force
 Remove-Item -Path $FileBrowser.FileName -Force
+}
+}
+
+
+else{
+Write-Host "You are not able to decrypt this file" -ForegroundColor Red
 }
 }
