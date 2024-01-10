@@ -670,15 +670,7 @@ Remove-Item -Path $FileBrowser.FileName -Force
 }
 }
 
-elseif(!$privatefile){
-$exists=(Get-Item -Path $FileBrowser.FileName -Stream Verification).Stream
-$Verification=Get-Content -Stream $Stream -Path $FileBrowser.FileName -ErrorAction SilentlyContinue
-if($Verification -ne $64Hash){
-Write-Host "You are not able to decrypt this file" -ForegroundColor Red
-elseif($exists){
-Write-Host "You are not able to decrypt this file" -ForegroundColor Red
-}
-}
+
 else{
 Write-Host "Where do you want your file to go? Include File and Extension" -ForegroundColor Red
 Sleep -s 3
@@ -701,10 +693,5 @@ $aes.Dispose()
 Remove-Item -Path $Filepath -Force
 Remove-Item -Path $FileBrowser.FileName -Force
 }
-}
 
-
-else{
-Write-Host "You are not able to decrypt this file" -ForegroundColor Red
-}
 }
