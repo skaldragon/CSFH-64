@@ -1,4 +1,4 @@
-function CSFH-64Decrypt{
+﻿function CSFH-64Decrypt{
 param(
 [Parameter(Mandatory=$true)][switch]$Filepathauto,
 #Used when you are the only person able to decrypt your file
@@ -679,7 +679,7 @@ $null = $SavedFile.ShowDialog()
 $File = Get-Item -Path $Filepath -ErrorAction SilentlyContinue
 $cipherBytes = [System.IO.File]::ReadAllBytes($File.FullName)
 $outPath = $SavedFile.FileName
-$aes = New-Object System.Security.Cryptography.AesManaged
+$aes= New-Object System.Security.Cryptography.AesCryptoServiceProvider
 $aes.Mode = [System.Security.Cryptography.CipherMode]::CBC
 $aes.Padding = [System.Security.Cryptography.PaddingMode]::Zeros
 $aes.BlockSize = 128

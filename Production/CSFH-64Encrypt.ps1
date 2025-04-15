@@ -1,4 +1,4 @@
-function CSFH-64Encrypt{
+﻿function CSFH-64Encrypt{
 param(
 [Parameter(Mandatory=$true)][switch]$Filepathauto,
 #Used when you want to be the only one able to decrypt your file
@@ -646,7 +646,7 @@ $keyarray=$keyarray.Split(",").Replace("`(","").Replace("`)","");
 [byte[]]$key=$keyarray
 
 
-$aes= New-Object System.Security.Cryptography.AesManaged
+$aes= New-Object System.Security.Cryptography.AesCryptoServiceProvider
 $aes.Mode = [System.Security.Cryptography.CipherMode]::CBC
 $aes.Padding = [System.Security.Cryptography.PaddingMode]::Zeros
 $aes.BlockSize = 128
