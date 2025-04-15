@@ -22,6 +22,8 @@ A hashing and encryption and decryption algorithm for powershell with user Verif
 # Version 4.1.5
 * Fixed Big File Encryption
 * Exports Key all the time to help with Verification.
+# Version 4.1.6
+* FIPS 140-2 Compliant
 ----------------------------
 # Beta Versions below
 
